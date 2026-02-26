@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Focus Space — Neural Focus Timer</title>
+    <!-- Audio requires HTTP: run serve.bat and open http://localhost:8080 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600&display=swap" rel="stylesheet">
@@ -235,28 +236,6 @@
             font-weight: 500;
             color: rgba(255,255,255,0.5);
         }
-        .tip-sound-row {
-            margin-top: 10px;
-            padding-top: 8px;
-            border-top: 1px solid var(--glass-border);
-        }
-        .tip-sound-btn {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-family: 'Outfit', sans-serif;
-            font-size: 12px;
-            font-weight: 400;
-            cursor: pointer;
-            padding: 4px 0;
-            transition: color 0.2s ease;
-        }
-        .tip-sound-btn:hover {
-            color: var(--text-main);
-        }
-        .tip-sound-btn.muted {
-            opacity: 0.7;
-        }
         .timer-custom-row {
             display: flex;
             align-items: center;
@@ -474,6 +453,45 @@
             position: relative;
             z-index: 2;
         }
+        body.focus-ui-hidden #timer-container,
+        body.focus-ui-hidden #control-buttons {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        #eye-toggle-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 25;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(16px);
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s ease;
+        }
+        #eye-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: var(--text-main);
+            border-color: var(--glass-highlight);
+        }
+        #eye-toggle-btn svg {
+            width: 22px;
+            height: 22px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
         @media (max-width: 640px) {
             #instructions-container {
                 top: 16px;
@@ -536,9 +554,6 @@
         <div id="instruction-title">Focus Space</div>
         <div class="instruction-text">Use this space during focus sessions or short breaks. Set your duration below, then click the scene to send a calming pulse. Drag to orbit; Morph refreshes the view.</div>
         <div id="space-tip-toast" aria-live="polite" role="status"></div>
-        <div class="tip-sound-row">
-            <button type="button" id="tip-sound-toggle" class="tip-sound-btn" aria-label="Mute tip sound" title="Toggle tip notification sound"><span id="tip-sound-label">Tip sound on</span></button>
-        </div>
     </div>
     <div id="timer-container" class="glass-panel">
         <div id="timer-label">Focus timer</div>
@@ -577,8 +592,13 @@
         <button id="change-formation-btn" class="control-button"><span>Morph</span></button>
         <button id="pause-play-btn" class="control-button"><span>Freeze</span></button>
         <button id="reset-camera-btn" class="control-button"><span>Reset</span></button>
-        <button id="sound-toggle-btn" class="control-button" aria-label="Toggle ambient sound" title="Toggle ambient sound"><span id="sound-toggle-label">Sound</span></button>
+        <button id="sound-toggle-btn" class="control-button" aria-label="Mute ambient sound" title="Toggle ambient sound"><span id="sound-toggle-label">Mute</span></button>
+        <button id="tip-sound-toggle" class="control-button" aria-label="Mute tip sound" title="Toggle tip sound"><span id="tip-sound-label">Tip sound on</span></button>
     </div>
+    <button type="button" id="eye-toggle-btn" aria-label="Hide focus timer and buttons" title="Hide focus timer and buttons">
+        <svg id="eye-icon-show" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        <svg id="eye-icon-hide" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+    </button>
     <canvas id="neural-network-canvas"></canvas>
     <script type="importmap">
     {
@@ -744,39 +764,59 @@
             } catch (_) {}
         }
         let ambientGain = null;
-        let ambientOsc1 = null;
-        let ambientOsc2 = null;
+        let ambientSource = null;
+        let ambientAudioEl = null;
         let soundMuted = false;
         let ambientStarted = false;
         function startAmbientSound() {
             if (ambientStarted) return;
             try {
                 const ctx = ensureAudio();
+                if (ctx.state === 'suspended') ctx.resume().catch(function() {});
                 const gainNode = ctx.createGain();
                 gainNode.gain.value = soundMuted ? 0 : 0.04;
                 gainNode.connect(ctx.destination);
-                const osc1 = ctx.createOscillator();
-                const osc2 = ctx.createOscillator();
-                osc1.type = 'sine';
-                osc2.type = 'sine';
-                osc1.frequency.value = 55;
-                osc2.frequency.value = 82.5;
-                osc1.connect(gainNode);
-                osc2.connect(gainNode);
-                osc1.start(0);
-                osc2.start(0);
-                ambientGain = gainNode;
-                ambientOsc1 = osc1;
-                ambientOsc2 = osc2;
-                ambientStarted = true;
+                var audioEl = document.getElementById('ambient-audio');
+                if (!audioEl) {
+                    audioEl = new Audio();
+                    audioEl.id = 'ambient-audio';
+                    audioEl.preload = 'auto';
+                    audioEl.loop = true;
+                    audioEl.crossOrigin = 'anonymous';
+                    audioEl.src = 'delosound-space-ambient-cinematic-442834.mp3';
+                    // Start play() in same user gesture so browsers allow it (autoplay policy)
+                    audioEl.play().catch(function() {});
+                }
+                ambientAudioEl = audioEl;
+                function connectAndPlay() {
+                    try {
+                        var source = ctx.createMediaElementSource(audioEl);
+                        source.connect(gainNode);
+                        ambientSource = source;
+                        ambientGain = gainNode;
+                        ambientStarted = true;
+                        ambientGain.gain.setTargetAtTime(soundMuted ? 0 : 0.04, ctx.currentTime, 0.1);
+                        audioEl.play().catch(function() {});
+                    } catch (e) {}
+                }
+                if (audioEl.readyState >= 2) {
+                    connectAndPlay();
+                } else {
+                    audioEl.addEventListener('canplaythrough', connectAndPlay, { once: true });
+                    audioEl.addEventListener('error', function() {}, { once: true });
+                    audioEl.load();
+                }
             } catch (_) {}
         }
         function setAmbientMuted(muted) {
             soundMuted = muted;
             if (ambientGain) ambientGain.gain.setTargetAtTime(muted ? 0 : 0.04, (audioCtx || {}).currentTime || 0, 0.1);
+            if (!muted && audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume().catch(function() {});
+            }
             const label = document.getElementById('sound-toggle-label');
             const btn = document.getElementById('sound-toggle-btn');
-            if (label) label.textContent = muted ? 'Muted' : 'Sound';
+            if (label) label.textContent = muted ? 'Sound' : 'Mute';
             if (btn) btn.setAttribute('aria-label', muted ? 'Unmute ambient sound' : 'Mute ambient sound');
         }
         function toggleAmbientSound() {
@@ -1617,6 +1657,8 @@
         }
         function onFirstUserInteraction() {
             startAmbientSound();
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(function() {});
+            if (ambientAudioEl && !soundMuted) ambientAudioEl.play().catch(function() {});
             document.removeEventListener('click', onFirstUserInteraction);
             document.removeEventListener('keydown', onFirstUserInteraction);
         }
@@ -1683,8 +1725,12 @@
         if (soundToggleBtn) {
             soundToggleBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
+                const wasAlreadyStarted = ambientStarted;
                 startAmbientSound();
-                toggleAmbientSound();
+                if (audioCtx && audioCtx.state === 'suspended') {
+                    audioCtx.resume().catch(function() {});
+                }
+                if (wasAlreadyStarted) toggleAmbientSound();
             });
         }
         document.querySelectorAll('.timer-preset').forEach(btn => {
@@ -1936,10 +1982,10 @@
                 osc.frequency.setValueAtTime(659.25, now + 0.08);
                 osc.frequency.setValueAtTime(783.99, now + 0.16);
                 gain.gain.setValueAtTime(0, now);
-                gain.gain.linearRampToValueAtTime(0.06, now + 0.02);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+                gain.gain.linearRampToValueAtTime(0.12, now + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
                 osc.start(now);
-                osc.stop(now + 0.28);
+                osc.stop(now + 0.35);
             } catch (_) {}
         }
         function setTipSoundMuted(muted) {
@@ -1969,6 +2015,41 @@
         }
         setInterval(showRandomSpaceTip, 30000);
         setTimeout(showRandomSpaceTip, 3000);
+        let focusUiHidden = false;
+        try {
+            const stored = localStorage.getItem('focusSpaceFocusUiHidden');
+            if (stored === 'true') { focusUiHidden = true; document.body.classList.add('focus-ui-hidden'); }
+        } catch (_) {}
+        function setFocusUiHidden(hidden) {
+            focusUiHidden = hidden;
+            try { localStorage.setItem('focusSpaceFocusUiHidden', String(hidden)); } catch (_) {}
+            document.body.classList.toggle('focus-ui-hidden', hidden);
+            const btn = document.getElementById('eye-toggle-btn');
+            const showIcon = document.getElementById('eye-icon-show');
+            const hideIcon = document.getElementById('eye-icon-hide');
+            if (btn) {
+                btn.setAttribute('aria-label', hidden ? 'Show focus timer and buttons' : 'Hide focus timer and buttons');
+                btn.setAttribute('title', hidden ? 'Show focus timer and buttons' : 'Hide focus timer and buttons');
+            }
+            if (showIcon) showIcon.style.display = hidden ? 'none' : 'block';
+            if (hideIcon) hideIcon.style.display = hidden ? 'block' : 'none';
+        }
+        const eyeToggleBtn = document.getElementById('eye-toggle-btn');
+        if (eyeToggleBtn) eyeToggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            setFocusUiHidden(!focusUiHidden);
+        });
+        if (focusUiHidden) {
+            const showIcon = document.getElementById('eye-icon-show');
+            const hideIcon = document.getElementById('eye-icon-hide');
+            if (showIcon) showIcon.style.display = 'none';
+            if (hideIcon) hideIcon.style.display = 'block';
+            const btn = document.getElementById('eye-toggle-btn');
+            if (btn) {
+                btn.setAttribute('aria-label', 'Show focus timer and buttons');
+                btn.setAttribute('title', 'Show focus timer and buttons');
+            }
+        }
         document.getElementById('timer-start-pause').addEventListener('click', (e) => {
             e.stopPropagation();
             if (timerState.running) stopTimer();
