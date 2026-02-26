@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neural Network</title>
+    <title>Focus Space — Neural Focus Timer</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600&display=swap" rel="stylesheet">
@@ -96,7 +96,7 @@
         #instructions-container {
             top: 32px;
             left: 32px;
-            width: 280px;
+            width: 300px;
             padding: 24px;
         }
         #instruction-title {
@@ -105,6 +105,7 @@
             margin-bottom: 8px;
             letter-spacing: -0.02em;
             background: linear-gradient(135deg, #fff 30%, #a5b4fc 100%);
+            background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             text-shadow: 0 10px 20px rgba(0,0,0,0.2);
@@ -114,6 +115,196 @@
             line-height: 1.5;
             color: var(--text-muted);
             font-weight: 300;
+        }
+        #timer-container {
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 20px 28px;
+            min-width: 260px;
+            text-align: center;
+            z-index: 15;
+        }
+        #timer-display {
+            font-variant-numeric: tabular-nums;
+            font-size: 2.2rem;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #fff 20%, #c4b5fd 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        #timer-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+        }
+        .timer-presets {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .timer-preset {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid var(--glass-border);
+            color: var(--text-muted);
+            padding: 8px 14px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.25s ease;
+        }
+        .timer-preset:hover {
+            background: rgba(255,255,255,0.12);
+            color: var(--text-main);
+            border-color: var(--glass-highlight);
+        }
+        .timer-preset.active {
+            background: rgba(102, 126, 234, 0.25);
+            color: #a5b4fc;
+            border-color: rgba(102, 126, 234, 0.5);
+        }
+        #timer-start-pause {
+            margin-top: 14px;
+            width: 100%;
+            padding: 12px;
+            border-radius: 14px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255,255,255,0.06);
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+        #timer-start-pause:hover {
+            background: rgba(255,255,255,0.12);
+            border-color: var(--glass-highlight);
+        }
+        #sessions-today {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 12px;
+        }
+        #session-complete-toast {
+            position: fixed;
+            bottom: 180px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            padding: 16px 28px;
+            background: linear-gradient(145deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.2));
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 16px;
+            color: var(--text-main);
+            font-size: 15px;
+            font-weight: 500;
+            z-index: 30;
+            opacity: 0;
+            transition: transform 0.4s ease, opacity 0.4s ease;
+            pointer-events: none;
+        }
+        #session-complete-toast.visible {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        #space-tip-toast {
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 1px solid var(--glass-border);
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 400;
+            line-height: 1.45;
+            min-height: 1.5em;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        #space-tip-toast.visible {
+            opacity: 1;
+        }
+        #space-tip-toast:not(:empty)::before {
+            content: 'Tip: ';
+            font-weight: 500;
+            color: rgba(255,255,255,0.5);
+        }
+        .tip-sound-row {
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px solid var(--glass-border);
+        }
+        .tip-sound-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-family: 'Outfit', sans-serif;
+            font-size: 12px;
+            font-weight: 400;
+            cursor: pointer;
+            padding: 4px 0;
+            transition: color 0.2s ease;
+        }
+        .tip-sound-btn:hover {
+            color: var(--text-main);
+        }
+        .tip-sound-btn.muted {
+            opacity: 0.7;
+        }
+        .timer-custom-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .timer-custom-row label {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        #timer-custom-minutes {
+            width: 56px;
+            padding: 6px 10px;
+            border-radius: 10px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255,255,255,0.06);
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+            font-variant-numeric: tabular-nums;
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+        #timer-custom-minutes::-webkit-outer-spin-button,
+        #timer-custom-minutes::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        #timer-custom-minutes:focus {
+            outline: none;
+            border-color: var(--glass-highlight);
+        }
+        #timer-custom-set {
+            padding: 6px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255,255,255,0.08);
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        #timer-custom-set:hover {
+            background: rgba(255,255,255,0.12);
+            border-color: var(--glass-highlight);
         }
         #theme-selector {
             top: 32px;
@@ -196,6 +387,7 @@
             text-shadow: 0 0 10px rgba(255,255,255,0.3);
         }
         .density-slider {
+            appearance: none;
             -webkit-appearance: none;
             width: 100%;
             height: 6px;
@@ -205,6 +397,7 @@
             box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
         }
         .density-slider::-webkit-slider-thumb {
+            appearance: none;
             -webkit-appearance: none;
             width: 18px;
             height: 18px;
@@ -290,6 +483,24 @@
                 padding: 16px;
                 background: rgba(10, 10, 15, 0.6);
             }
+            #timer-container {
+                bottom: 100px;
+                min-width: 240px;
+                padding: 16px 20px;
+            }
+            #timer-display {
+                font-size: 1.8rem;
+            }
+            #session-complete-toast {
+                bottom: 160px;
+                font-size: 14px;
+                padding: 12px 20px;
+            }
+            #space-tip-toast {
+                font-size: 12px;
+                margin-top: 12px;
+                padding-top: 12px;
+            }
             #theme-selector {
                 top: auto;
                 bottom: 100px;
@@ -322,9 +533,31 @@
 </head>
 <body>
     <div id="instructions-container" class="glass-panel">
-        <div id="instruction-title">Quantum Neural Network</div>
-        <div class="instruction-text">Click to send energy pulses. <br>Drag to explore the structure.</div>
+        <div id="instruction-title">Focus Space</div>
+        <div class="instruction-text">Use this space during focus sessions or short breaks. Set your duration below, then click the scene to send a calming pulse. Drag to orbit; Morph refreshes the view.</div>
+        <div id="space-tip-toast" aria-live="polite" role="status"></div>
+        <div class="tip-sound-row">
+            <button type="button" id="tip-sound-toggle" class="tip-sound-btn" aria-label="Mute tip sound" title="Toggle tip notification sound"><span id="tip-sound-label">Tip sound on</span></button>
+        </div>
     </div>
+    <div id="timer-container" class="glass-panel">
+        <div id="timer-label">Focus timer</div>
+        <div id="timer-display">25:00</div>
+        <div class="timer-presets">
+            <button type="button" class="timer-preset active" data-minutes="25" aria-label="25 minutes">25 min</button>
+            <button type="button" class="timer-preset" data-minutes="5" aria-label="5 minutes">5 min</button>
+            <button type="button" class="timer-preset" data-minutes="15" aria-label="15 minutes">15 min</button>
+            <button type="button" class="timer-preset" data-minutes="45" aria-label="45 minutes">45 min</button>
+        </div>
+        <div class="timer-custom-row">
+            <label for="timer-custom-minutes">Custom:</label>
+            <input type="text" inputmode="numeric" id="timer-custom-minutes" value="25" placeholder="min" aria-label="Custom minutes (1–120)">
+            <button type="button" id="timer-custom-set">Set</button>
+        </div>
+        <button type="button" id="timer-start-pause">Start focus</button>
+        <div id="sessions-today">Sessions today: 0</div>
+    </div>
+    <div id="session-complete-toast" aria-live="polite">Session complete. Great focus.</div>
     <div id="theme-selector" class="glass-panel">
         <div style="flex: 1;">
             <div id="theme-selector-title">Crystal Theme</div>
@@ -344,6 +577,7 @@
         <button id="change-formation-btn" class="control-button"><span>Morph</span></button>
         <button id="pause-play-btn" class="control-button"><span>Freeze</span></button>
         <button id="reset-camera-btn" class="control-button"><span>Reset</span></button>
+        <button id="sound-toggle-btn" class="control-button" aria-label="Toggle ambient sound" title="Toggle ambient sound"><span id="sound-toggle-label">Sound</span></button>
     </div>
     <canvas id="neural-network-canvas"></canvas>
     <script type="importmap">
@@ -368,6 +602,186 @@
             numFormations: 3,
             densityFactor: 1
         };
+        const timerState = {
+            totalSeconds: 25 * 60,
+            remainingSeconds: 25 * 60,
+            running: false,
+            intervalId: null
+        };
+        function getTodayKey() {
+            const d = new Date();
+            return 'focus_sessions_' + d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        }
+        function getSessionsToday() {
+            try {
+                return parseInt(localStorage.getItem(getTodayKey()) || '0', 10);
+            } catch (_) { return 0; }
+        }
+        function incrementSessionsToday() {
+            const key = getTodayKey();
+            const n = getSessionsToday() + 1;
+            try { localStorage.setItem(key, String(n)); } catch (_) {}
+            return n;
+        }
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = seconds % 60;
+            return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+        }
+        function updateTimerDisplay() {
+            const el = document.getElementById('timer-display');
+            const label = document.getElementById('timer-label');
+            if (el) el.textContent = formatTime(timerState.remainingSeconds);
+            if (label) label.textContent = timerState.running ? 'Time remaining' : 'Focus timer';
+        }
+        function updateSessionsDisplay() {
+            const el = document.getElementById('sessions-today');
+            if (el) el.textContent = 'Sessions today: ' + getSessionsToday();
+        }
+        function stopTimer() {
+            if (timerState.intervalId) {
+                clearInterval(timerState.intervalId);
+                timerState.intervalId = null;
+            }
+            timerState.running = false;
+            const btn = document.getElementById('timer-start-pause');
+            if (btn) btn.textContent = 'Start focus';
+            updateTimerDisplay();
+        }
+        function startTimer() {
+            if (timerState.remainingSeconds <= 0) return;
+            timerState.running = true;
+            const btn = document.getElementById('timer-start-pause');
+            if (btn) btn.textContent = 'Pause';
+            updateTimerDisplay();
+            if (timerState.intervalId) clearInterval(timerState.intervalId);
+            timerState.intervalId = setInterval(() => {
+                timerState.remainingSeconds--;
+                updateTimerDisplay();
+                if (timerState.remainingSeconds <= 0) {
+                    stopTimer();
+                    incrementSessionsToday();
+                    updateSessionsDisplay();
+                    const toast = document.getElementById('session-complete-toast');
+                    if (toast) {
+                        toast.classList.add('visible');
+                        setTimeout(() => toast.classList.remove('visible'), 4000);
+                    }
+                    if (nodesMesh && connectionsMesh && clock) {
+                        lastPulseIndex = (lastPulseIndex + 1) % 3;
+                        const center = new THREE.Vector3(0, 0, 0);
+                        const t = clock.getElapsedTime();
+                        nodesMesh.material.uniforms.uPulsePositions.value[lastPulseIndex].copy(center);
+                        nodesMesh.material.uniforms.uPulseTimes.value[lastPulseIndex] = t;
+                        connectionsMesh.material.uniforms.uPulsePositions.value[lastPulseIndex].copy(center);
+                        connectionsMesh.material.uniforms.uPulseTimes.value[lastPulseIndex] = t;
+                        const palette = colorPalettes[config.activePaletteIndex];
+                        const randomColor = palette[Math.floor(Math.random() * palette.length)];
+                        nodesMesh.material.uniforms.uPulseColors.value[lastPulseIndex].copy(randomColor);
+                        connectionsMesh.material.uniforms.uPulseColors.value[lastPulseIndex].copy(randomColor);
+                    }
+                }
+            }, 1000);
+        }
+        function setTimerMinutes(minutes) {
+            const wasRunning = timerState.running;
+            stopTimer();
+            const m = Math.max(1, Math.min(120, minutes));
+            timerState.totalSeconds = m * 60;
+            timerState.remainingSeconds = m * 60;
+            updateTimerDisplay();
+            const customInput = document.getElementById('timer-custom-minutes');
+            if (customInput) customInput.value = m;
+            document.querySelectorAll('.timer-preset').forEach(b => b.classList.remove('active'));
+            if (wasRunning) startTimer();
+        }
+        let audioCtx = null;
+        function ensureAudio() {
+            if (audioCtx) return audioCtx;
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            return audioCtx;
+        }
+        function playCalmPulseSound() {
+            try {
+                const ctx = ensureAudio();
+                const now = ctx.currentTime;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.exponentialRampToValueAtTime(180, now + 0.4);
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+                osc.start(now);
+                osc.stop(now + 0.5);
+            } catch (_) {}
+        }
+        function playExplosionSound() {
+            try {
+                const ctx = ensureAudio();
+                const now = ctx.currentTime;
+                const bufferSize = ctx.sampleRate * 0.15;
+                const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 2);
+                }
+                const noise = ctx.createBufferSource();
+                noise.buffer = buffer;
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.value = 800;
+                const gain = ctx.createGain();
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(ctx.destination);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+                noise.start(now);
+                noise.stop(now + 0.15);
+            } catch (_) {}
+        }
+        let ambientGain = null;
+        let ambientOsc1 = null;
+        let ambientOsc2 = null;
+        let soundMuted = false;
+        let ambientStarted = false;
+        function startAmbientSound() {
+            if (ambientStarted) return;
+            try {
+                const ctx = ensureAudio();
+                const gainNode = ctx.createGain();
+                gainNode.gain.value = soundMuted ? 0 : 0.04;
+                gainNode.connect(ctx.destination);
+                const osc1 = ctx.createOscillator();
+                const osc2 = ctx.createOscillator();
+                osc1.type = 'sine';
+                osc2.type = 'sine';
+                osc1.frequency.value = 55;
+                osc2.frequency.value = 82.5;
+                osc1.connect(gainNode);
+                osc2.connect(gainNode);
+                osc1.start(0);
+                osc2.start(0);
+                ambientGain = gainNode;
+                ambientOsc1 = osc1;
+                ambientOsc2 = osc2;
+                ambientStarted = true;
+            } catch (_) {}
+        }
+        function setAmbientMuted(muted) {
+            soundMuted = muted;
+            if (ambientGain) ambientGain.gain.setTargetAtTime(muted ? 0 : 0.04, (audioCtx || {}).currentTime || 0, 0.1);
+            const label = document.getElementById('sound-toggle-label');
+            const btn = document.getElementById('sound-toggle-btn');
+            if (label) label.textContent = muted ? 'Muted' : 'Sound';
+            if (btn) btn.setAttribute('aria-label', muted ? 'Unmute ambient sound' : 'Mute ambient sound');
+        }
+        function toggleAmbientSound() {
+            setAmbientMuted(!soundMuted);
+        }
         const colorPalettes = [
             [
                 new THREE.Color(0x667eea),
@@ -1196,15 +1610,24 @@
                     const randomColor = palette[Math.floor(Math.random() * palette.length)];
                     nodesMesh.material.uniforms.uPulseColors.value[lastPulseIndex].copy(randomColor);
                     connectionsMesh.material.uniforms.uPulseColors.value[lastPulseIndex].copy(randomColor);
+                    playCalmPulseSound();
+                    playExplosionSound();
                 }
             }
         }
+        function onFirstUserInteraction() {
+            startAmbientSound();
+            document.removeEventListener('click', onFirstUserInteraction);
+            document.removeEventListener('keydown', onFirstUserInteraction);
+        }
+        document.addEventListener('click', onFirstUserInteraction, { once: true });
+        document.addEventListener('keydown', onFirstUserInteraction, { once: true });
         renderer.domElement.addEventListener('click', (e) => {
-            if (e.target.closest('.glass-panel, #control-buttons')) return;
+            if (e.target.closest('.glass-panel, #control-buttons, #timer-container')) return;
             if (!config.paused) triggerPulse(e.clientX, e.clientY);
         });
         renderer.domElement.addEventListener('touchstart', (e) => {
-            if (e.target.closest('.glass-panel, #control-buttons')) return;
+            if (e.target.closest('.glass-panel, #control-buttons, #timer-container')) return;
             e.preventDefault();
             if (e.touches.length > 0 && !config.paused) {
                 triggerPulse(e.touches[0].clientX, e.touches[0].clientY);
@@ -1248,12 +1671,308 @@
             config.paused = !config.paused;
             pausePlayBtn.querySelector('span').textContent = config.paused ? 'Play' : 'Freeze';
             controls.autoRotate = !config.paused;
+            if (config.paused && timerState.running) stopTimer();
         });
         resetCameraBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             controls.reset();
             controls.autoRotate = false;
             setTimeout(() => { controls.autoRotate = true; }, 2000);
+        });
+        const soundToggleBtn = document.getElementById('sound-toggle-btn');
+        if (soundToggleBtn) {
+            soundToggleBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                startAmbientSound();
+                toggleAmbientSound();
+            });
+        }
+        document.querySelectorAll('.timer-preset').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const minutes = parseInt(btn.dataset.minutes, 10);
+                setTimerMinutes(minutes);
+                document.querySelectorAll('.timer-preset').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+        const timerCustomMinutes = document.getElementById('timer-custom-minutes');
+        const timerCustomSet = document.getElementById('timer-custom-set');
+        if (timerCustomSet) {
+            timerCustomSet.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const minutes = parseInt(timerCustomMinutes.value, 10);
+                if (!isNaN(minutes) && minutes >= 1 && minutes <= 120) setTimerMinutes(minutes);
+            });
+        }
+        if (timerCustomMinutes) {
+            timerCustomMinutes.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const minutes = parseInt(timerCustomMinutes.value, 10);
+                    if (!isNaN(minutes) && minutes >= 1 && minutes <= 120) setTimerMinutes(minutes);
+                }
+            });
+        }
+        const spaceTips = [
+            'Shine like a star, even in vast darkness.',
+            'Expand like the universe — there is no limit.',
+            'Orbit around purpose, not distraction.',
+            'Stay grounded, but dream in galaxies.',
+            'Even black holes teach depth.',
+            'Create your own constellation of values.',
+            'Move with quiet gravity.',
+            'Explode into brilliance when the time is right.',
+            'Embrace the unknown like an astronaut.',
+            'Let curiosity be your rocket fuel.',
+            'Protect your energy like Earth\'s atmosphere.',
+            'Not all stars need to be loud to shine.',
+            'Your light can travel years before it\'s seen.',
+            'Accept phases like the moon.',
+            'Learn from cosmic collisions.',
+            'Stay steady like planetary orbits.',
+            'Build momentum slowly, like a launch.',
+            'Some distances create clarity.',
+            'Dark matter still matters.',
+            'Growth is universal.',
+            'Leave stardust wherever you go.',
+            'Align with your inner compass.',
+            'Silence can be infinite.',
+            'Take space when needed.',
+            'Burn with purpose, not pressure.',
+            'Even meteors once belonged somewhere.',
+            'The smallest spark can light a galaxy.',
+            'Adapt like life in space would.',
+            'Stay mysterious but genuine.',
+            'Patience is planetary.',
+            'Your orbit defines your influence.',
+            'Keep exploring.',
+            'Time is relative — use it wisely.',
+            'Rise after every eclipse.',
+            'There is beauty in vast emptiness.',
+            'Protect your inner universe.',
+            'Balance like gravity and motion.',
+            'Think beyond your planet.',
+            'Let go like a falling comet.',
+            'Energy never disappears — transform it.',
+            'Stand firm like Saturn\'s rings.',
+            'See from a higher orbit.',
+            'Reflect light when you cannot create it.',
+            'Stay luminous.',
+            'Even galaxies collide and create.',
+            'Don\'t fear deep space.',
+            'Travel light-years in mindset.',
+            'Be consistent like sunrise from orbit.',
+            'Study your own patterns.',
+            'Make space for growth.',
+            'The universe rewards expansion.',
+            'Embrace cosmic timing.',
+            'Shine without burning out.',
+            'Gravity pulls — choose what attracts you.',
+            'Protect your core energy.',
+            'Even astronauts train before launch.',
+            'Don\'t drift without direction.',
+            'Spark like a supernova when ready.',
+            'Stay cool under pressure like space itself.',
+            'Darkness highlights brilliance.',
+            'Expand your horizons daily.',
+            'You are made of stardust.',
+            'Explore beyond comfort zones.',
+            'Even craters tell stories.',
+            'Leave orbit when growth demands it.',
+            'Be a guiding star.',
+            'Stability comes from balance.',
+            'Learn from lunar cycles.',
+            'Trust your internal navigation.',
+            'Keep your vision telescopic.',
+            'Some journeys take light-years.',
+            'Shine without comparison.',
+            'Let ideas launch.',
+            'Avoid toxic gravity.',
+            'Discover new galaxies within yourself.',
+            'Stay curious about everything.',
+            'Rise slowly like a rocket.',
+            'Patience builds planets.',
+            'Find beauty in silence.',
+            'Let your mind wander the cosmos.',
+            'Stay aligned with your axis.',
+            'Even stars have lifespans — use yours wisely.',
+            'Be vast in thought.',
+            'Illuminate paths for others.',
+            'Accept change like shifting constellations.',
+            'Build your own universe.',
+            'Stay bright during storms.',
+            'Space is endless — so is potential.',
+            'Take calculated risks like astronauts.',
+            'Keep evolving.',
+            'Grow quietly like distant stars.',
+            'Leave negative orbits.',
+            'Align with people who elevate you.',
+            'The universe favors movement.',
+            'Stay steady in chaos.',
+            'Find clarity in distance.',
+            'Your gravity shapes your circle.',
+            'Be timeless.',
+            'Observe before you react.',
+            'Keep your core strong.',
+            'Embrace vast possibilities.',
+            'Explore your limits.',
+            'Radiate calm energy.',
+            'Drift only with intention.',
+            'Create your own light source.',
+            'Focus like a laser beam.',
+            'Adapt like planets to seasons.',
+            'Accept transformation.',
+            'Stay grounded yet limitless.',
+            'Learn from every eclipse.',
+            'You are a universe within.',
+            'Think in galaxies, act locally.',
+            'Keep curiosity alive.',
+            'Even small stars matter.',
+            'Let go of dead weight.',
+            'Be the calm in the vacuum.',
+            'Expand intellectually.',
+            'Shine authentically.',
+            'Avoid unnecessary collisions.',
+            'Seek higher perspectives.',
+            'Grow beyond boundaries.',
+            'Light travels — so do actions.',
+            'Stay patient like orbit cycles.',
+            'Learn from cosmic silence.',
+            'Build strength internally.',
+            'Navigate by principles.',
+            'Explore the unknown bravely.',
+            'Balance light and shadow.',
+            'Even darkness has purpose.',
+            'Protect your peace.',
+            'Find your constellation.',
+            'Be resilient like space explorers.',
+            'Stay adaptable.',
+            'Take bold launches.',
+            'Keep your trajectory clear.',
+            'Think long-term like galaxies.',
+            'Reflect before reacting.',
+            'Stay brilliant without arrogance.',
+            'Explore inner space.',
+            'Grow through pressure.',
+            'Let ideas orbit before acting.',
+            'Be expansive in kindness.',
+            'Protect your mental atmosphere.',
+            'Even far stars influence tides.',
+            'Stay disciplined.',
+            'Keep seeking discovery.',
+            'Learn from every phase.',
+            'Avoid black-hole thinking.',
+            'Keep your vision infinite.',
+            'Inspire like the night sky.',
+            'Evolve continuously.',
+            'Create gravitational impact.',
+            'Accept cosmic uncertainty.',
+            'Be bold yet calculated.',
+            'Shine consistently.',
+            'Stay balanced like planetary systems.',
+            'Move forward steadily.',
+            'Expand your mental universe.',
+            'Keep perspective wide.',
+            'Let dreams launch.',
+            'Respect cosmic timing.',
+            'Be calm in the void.',
+            'Learn from distant perspectives.',
+            'Embrace infinite growth.',
+            'Stay humble like Earth in space.',
+            'Keep exploring inward and outward.',
+            'Stay aligned with your purpose.',
+            'Radiate positivity.',
+            'Adapt to changing environments.',
+            'Stay luminous in setbacks.',
+            'Explore new frontiers.',
+            'Keep evolving your orbit.',
+            'Stay patient during darkness.',
+            'Shine with intention.',
+            'Seek clarity beyond clouds.',
+            'Balance ambition and peace.',
+            'Think beyond boundaries.',
+            'Keep your inner fire steady.',
+            'Accept change as cosmic law.',
+            'Stay resilient in vastness.',
+            'Build meaningful constellations.',
+            'Explore without fear.',
+            'Stay centered.',
+            'Grow through every phase.',
+            'Illuminate quietly.',
+            'Expand courageously.',
+            'Navigate wisely.',
+            'Protect your light.',
+            'Embrace the unknown confidently.',
+            'Shine through adversity.',
+            'Seek knowledge like astronomers.',
+            'Stay limitless in thinking.',
+            'Rise like a new star.',
+            'Keep your orbit intentional.',
+            'Stay strong under pressure.',
+            'Embrace universal wisdom.',
+            'Leave a cosmic legacy.',
+            'Explore endlessly.',
+            'Radiate strength.',
+            'Be infinite. 🚀✨'
+        ];
+        let lastTipIndex = -1;
+        let tipSoundMuted = false;
+        try {
+            const stored = localStorage.getItem('focusSpaceTipSoundMuted');
+            if (stored !== null) tipSoundMuted = stored === 'true';
+        } catch (_) {}
+        function playTipSound() {
+            if (tipSoundMuted) return;
+            try {
+                const ctx = ensureAudio();
+                const now = ctx.currentTime;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, now);
+                osc.frequency.setValueAtTime(659.25, now + 0.08);
+                osc.frequency.setValueAtTime(783.99, now + 0.16);
+                gain.gain.setValueAtTime(0, now);
+                gain.gain.linearRampToValueAtTime(0.06, now + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+                osc.start(now);
+                osc.stop(now + 0.28);
+            } catch (_) {}
+        }
+        function setTipSoundMuted(muted) {
+            tipSoundMuted = muted;
+            try { localStorage.setItem('focusSpaceTipSoundMuted', String(muted)); } catch (_) {}
+            const label = document.getElementById('tip-sound-label');
+            const btn = document.getElementById('tip-sound-toggle');
+            if (label) label.textContent = muted ? 'Tip sound off' : 'Tip sound on';
+            if (btn) {
+                btn.setAttribute('aria-label', muted ? 'Unmute tip sound' : 'Mute tip sound');
+                btn.classList.toggle('muted', muted);
+            }
+        }
+        setTipSoundMuted(tipSoundMuted);
+        const tipSoundToggle = document.getElementById('tip-sound-toggle');
+        if (tipSoundToggle) tipSoundToggle.addEventListener('click', () => setTipSoundMuted(!tipSoundMuted));
+        function showRandomSpaceTip() {
+            const toast = document.getElementById('space-tip-toast');
+            if (!toast) return;
+            let idx = Math.floor(Math.random() * spaceTips.length);
+            if (spaceTips.length > 1 && idx === lastTipIndex) idx = (idx + 1) % spaceTips.length;
+            lastTipIndex = idx;
+            toast.textContent = spaceTips[idx];
+            toast.classList.add('visible');
+            playTipSound();
+            setTimeout(() => toast.classList.remove('visible'), 5000);
+        }
+        setInterval(showRandomSpaceTip, 30000);
+        setTimeout(showRandomSpaceTip, 3000);
+        document.getElementById('timer-start-pause').addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (timerState.running) stopTimer();
+            else startTimer();
         });
         const clock = new THREE.Clock();
         function animate() {
@@ -1278,6 +1997,8 @@
             createNetworkVisualization(config.currentFormation, config.densityFactor);
             document.querySelectorAll('.theme-button').forEach(b => b.classList.remove('active'));
             document.querySelector(`.theme-button[data-theme="${config.activePaletteIndex}"]`).classList.add('active');
+            updateTimerDisplay();
+            updateSessionsDisplay();
             animate();
         }
         function onWindowResize() {
